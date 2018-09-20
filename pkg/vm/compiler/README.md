@@ -25,16 +25,24 @@ The neo-go compiler compiles Go programs to bytecode that the NEO virtual machin
 ### VM API (interop layer)
 - storage
 - runtime
+- block
+- header
+- transaction
+- asset
+- blockchain
 
 ### VM utility helper functions
 - SHA1
 - SHA256
 - Hash256
 - Hash160
+- other..
+
+### Custom utility functions
+- `FromAddress(address string) []byte`
 
 ## Not yet implemented
-- range
-- some parts of the interop layer (VM API)
+- very small part of the interop layer (VM API)
 
 ## Not supported
 Due to the limitations of the NEO virtual machine, features listed below will not be supported.
@@ -109,9 +117,12 @@ Will output something like:
 ```Golang
 package mycontract
 
-import "github.com/CityOfZion/neo-go/pkg/vm/api/runtime"
+import (
+    "github.com/CityOfZion/neo-go/pkg/vm/api/runtime"
+    "github.com/CityOfZion/neo-go/pkg/vm/api/util"
+)
 
-var owner = []byte{0xaf, 0x12, 0xa8, 0x68, 0x7b, 0x14, 0x94, 0x8b, 0xc4, 0xa0, 0x08, 0x12, 0x8a, 0x55, 0x0a, 0x63, 0x69, 0x5b, 0xc1, 0xa5}
+var owner = util.FromAddress("AJX1jGfj3qPBbpAKjY527nPbnrnvSx9nCg") 
 
 func Main() bool {
     isOwner := runtime.CheckWitness(owner)
@@ -135,7 +146,7 @@ import (
 	"github.com/CityOfZion/neo-go/pkg/vm/api/storage"
 )
 
-var owner = []byte{0xaf, 0x12, 0xa8, 0x68, 0x7b, 0x14, 0x94, 0x8b, 0xc4, 0xa0, 0x08, 0x12, 0x8a, 0x55, 0x0a, 0x63, 0x69, 0x5b, 0xc1, 0xa5}
+var owner = util.FromAddress("AJX1jGfj3qPBbpAKjY527nPbnrnvSx9nCg") 
 
 type Token struct {
 	Name        string
@@ -146,7 +157,7 @@ type Token struct {
 
 func (t Token) AddToCirculation(amount int) bool {
 	ctx := storage.Context()
-	inCirc := storage.GetInt(ctx, "in_circ")
+	inCirc := storage.Get(ctx, "in_circ").(int)
 	inCirc += amount
 	storage.Put(ctx, "in_circ", inCirc)
 	return true
